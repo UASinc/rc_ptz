@@ -1,0 +1,101 @@
+#define joyX 7
+#define joyY 6
+#include <SoftwareSerial.h>
+
+// Do not use 0 and 1 if you want to be able to upload code while shield is attached to Arduino
+SoftwareSerial mySerial(2, 3); //2 is TX, 3 is RX 
+
+// Camera Commands
+// Default message 8x 01 04 3F 02 0p FF where x is camera number and p is preset number
+byte preset1[7] = {0x81, 0x01, 0x04, 0x3F, 0x02, 0x01, 0xFF}; // Camera 1 preset
+byte preset2[7] = {0x81, 0x01, 0x04, 0x3F, 0x02, 0x02, 0xFF}; // Camera 2 preset
+
+// Camera Controls
+byte panLeft[9] = {0xFF, 0x01, 0x00, 0x04, 0x3F, 0x00, 0x44}; // Pan Camera Left
+byte panRight[9] = {0xFF, 0x01, 0x00, 0x02, 0x20, 0x00, 0x23}; // Pan Camera Right
+byte panUp[9] = {0xFF, 0x01, 0x00, 0x08, 0x00, 0x3F, 0x48}; // Pan Camera Up
+byte panDown[9] = {0xFF, 0x01, 0x00, 0x10, 0x20, 0x00, 0x31}; // Camera Pan Down
+//up left
+//up right
+//down left
+//down right
+// zoom in
+//zoom out
+byte panStop[9] = {0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01}; // Camera Stop
+
+byte address_command[4] = {0x88, 0x30, 0x01, 0xFF}; // Sets camera address (Needed for Daisy Chaining)
+byte if_clear[5] = {0x88, 0x01, 0x00, 0x01, 0xFF}; // Checks to see if communication line is clear
+
+int delayTime = 500;  //Time between commands
+
+void setup() {
+ {
+  Serial.begin(9600); // Serial Communication w/ Computer for Debugging
+  mySerial.begin(9600); //  Serial Communication w/ Camera
+
+  //Send Address command
+  for (int i = 0; i < 4; i++)
+  {
+    mySerial.write(address_command[i]);
+  }
+
+  delay(delayTime);  //delay to allow camera time for next command
+
+  //Send IF_clear command
+  for (int i = 0; i < 5; i++)
+  {
+    mySerial.write(if_clear[i]);
+  }
+ }
+}
+ 
+void loop() {
+ int xValue = pulseIn(joyX, HIGH, 25000);
+ int yValue = pulseIn(joyY, HIGH, 25000);
+ 
+  Serial.print(xValue);
+  delay(delayTime);
+  Serial.println(yValue);
+  
+  if (yValue<=1600 && xValue>=1500 && yValue>=1500) //pan left
+  {
+    for (int i = 0; i < (sizeof(panRight)); i++) 
+      {
+        mySerial.write(panRight[i]); 
+        Serial.println("pan right");
+      }
+  }
+  else if (yValue<=1600 && xValue<=1000 && yValue>=1500)  //pan right
+  {
+    for (int i = 0; i < (sizeof(panLeft)); i++) 
+      {
+        mySerial.write(panLeft[i]); 
+        Serial.println("pan left");
+      }
+  }
+  else if (yValue<=1500 && xValue>=1300 && yValue>=1400)  // tilt up
+  {
+    for (int i = 0; i < (sizeof(panDown)); i++) 
+      {
+        mySerial.write(panDown[i]); 
+        Serial.println("tilt up");
+
+      }
+  }
+  else if (xValue>=1300 && yValue>=1600 && yValue<=1700) // tilt down
+  {
+    for (int i = 0; i < (sizeof(panUp)); i++) 
+      {
+        mySerial.write(panUp[i]); 
+         Serial.println("tilt down");
+
+      }
+  }
+  else if (yValue<=1600 && xValue>=1300 && xValue<=1500 && yValue>=1300) // stick center, stop actions
+  {
+    for (int i = 0; i < (sizeof(panStop)); i++) 
+      {
+        mySerial.write(panStop[i]); 
+      }
+  }
+}
