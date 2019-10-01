@@ -38,6 +38,7 @@ void setup() {
   {
     mySerial.write(address_command[i]);
   }
+  
 
   delay(delayTime);  //delay to allow camera time for next command
 
