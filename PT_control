@@ -15,12 +15,8 @@ byte panLeft[9] = {0xFF, 0x01, 0x00, 0x04, 0x3F, 0x00, 0x44}; // Pan Camera Left
 byte panRight[9] = {0xFF, 0x01, 0x00, 0x02, 0x20, 0x00, 0x23}; // Pan Camera Right
 byte panUp[9] = {0xFF, 0x01, 0x00, 0x08, 0x00, 0x3F, 0x48}; // Pan Camera Up
 byte panDown[9] = {0xFF, 0x01, 0x00, 0x10, 0x20, 0x00, 0x31}; // Camera Pan Down
-//up left
-//up right
-//down left
-//down right
-// zoom in
-//zoom out
+byte zmIn[9] = {0xFF, 0x01, 0x00, 0x20, 0x00, 0x00, 0x21};// zoom in
+byte zmOut[9] = {0xFF, 0x01, 0x00, 0x40, 0x00, 0x00, 0x41};//zoom out
 byte panStop[9] = {0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01}; // Camera Stop
 
 byte address_command[4] = {0x88, 0x30, 0x01, 0xFF}; // Sets camera address (Needed for Daisy Chaining)
@@ -54,11 +50,14 @@ void loop() {
  int xValue = pulseIn(joyX, HIGH, 25000);
  int yValue = pulseIn(joyY, HIGH, 25000);
  
+  Serial.print("xVal  ");
   Serial.print(xValue);
-  delay(delayTime);
+  Serial.print("     ");
+  Serial.print("yVal  ");
   Serial.println(yValue);
+  delay(100);
   
-  if (yValue<=1600 && xValue>=1500 && yValue>=1500) //pan left
+  if (yValue<=1200 && xValue>=1450 && yValue>=1000) //pan left
   {
     for (int i = 0; i < (sizeof(panRight)); i++) 
       {
@@ -66,7 +65,7 @@ void loop() {
         Serial.println("pan right");
       }
   }
-  else if (yValue<=1600 && xValue<=1000 && yValue>=1500)  //pan right
+  else if (yValue<=1200 && xValue<=1250 && yValue>=1000)  //pan right
   {
     for (int i = 0; i < (sizeof(panLeft)); i++) 
       {
@@ -74,7 +73,7 @@ void loop() {
         Serial.println("pan left");
       }
   }
-  else if (yValue<=1500 && xValue>=1300 && yValue>=1400)  // tilt up
+  else if (yValue<=1366 && xValue>=1250 && yValue>=1200)  // tilt up
   {
     for (int i = 0; i < (sizeof(panDown)); i++) 
       {
@@ -83,7 +82,7 @@ void loop() {
 
       }
   }
-  else if (xValue>=1300 && yValue>=1600 && yValue<=1700) // tilt down
+  else if (yValue>=800 && xValue>=1250 && yValue<=1000) // tilt down
   {
     for (int i = 0; i < (sizeof(panUp)); i++) 
       {
@@ -92,11 +91,42 @@ void loop() {
 
       }
   }
-  else if (yValue<=1600 && xValue>=1300 && xValue<=1500 && yValue>=1300) // stick center, stop actions
+  else if (yValue<=1900 && xValue>=1250 && yValue>=1650)  // zoom in
   {
+    for (int i = 0; i < (sizeof(zmIn)); i++) 
+      {
+        mySerial.write(zmIn[i]); 
+        Serial.println("zoom in");
+
+      }
+  }
+  else if (yValue<=1450 && xValue>=1250 && yValue>=1360)  // zoom out
+  {
+    for (int i = 0; i < (sizeof(zmOut)); i++) 
+      {
+        mySerial.write(zmOut[i]); 
+        Serial.println("zoom out");
+
+      }
+  }
+  else if (yValue<=1200 && xValue>=1200 && xValue<=1500 && yValue>=1000) // stick center, stop actions
+  {
+    Serial.print("Switch position 0    ");
     for (int i = 0; i < (sizeof(panStop)); i++) 
       {
         mySerial.write(panStop[i]); 
       }
+  }
+    else if (yValue<=1700 && xValue>=1200 && xValue<=1500 && yValue>=1500) // stick center, stop actions
+  {
+    Serial.print("Switch position 1    ");
+    for (int i = 0; i < (sizeof(panStop)); i++) 
+      {
+        mySerial.write(panStop[i]); 
+      }
+  }
+    else if (yValue<=0 && xValue>=0) // stick center, stop actions
+  {
+    Serial.print("  ** NO RC **  ");
   }
 }
