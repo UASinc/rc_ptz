@@ -1,4 +1,4 @@
-#define joyX 7
+#define joyX 5
 #define joyY 6
 #include <SoftwareSerial.h>
 
@@ -47,8 +47,8 @@ void setup() {
 }
  
 void loop() {
- int xValue = pulseIn(joyX, HIGH, 25000);
- int yValue = pulseIn(joyY, HIGH, 25000);
+ int xValue = pulseIn(joyX, HIGH);
+ int yValue = pulseIn(joyY, HIGH);
  
   Serial.print("xVal  ");
   Serial.print(xValue);
